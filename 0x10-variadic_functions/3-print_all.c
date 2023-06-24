@@ -1,87 +1,52 @@
 #include "variadic_functions.h"
 #include <stdio.h>
 #include <stdarg.h>
-#include <stdlib.h>
-/**
- * printf_c - print a character.
- * @arg_variables: list of arguments.
- * Return: void
- */
-void printf_c(va_list arg_variables)
-{
-	printf("%c", va_arg(arg_variables, int));
-}
-/**
- * printf_i - print an integer.
- * @arg_variables: arguments
- * Return: void
- */
-void printf_i(va_list arg_variables)
-{
-	printf("%i", va_arg(arg_variables, int));
-}
-/**
- * printf_f - print a float.
- *
- * @arg_variables: list of arguments.
- */
-void printf_f(va_list arg_variables)
-{
-	printf("%f", va_arg(arg_variables, double));
-}
-/**
- * printf_s - print a string.
- * @arg_variables: arguments
- * Return: void
- */
-void printf_s(va_list arg_variables)
-{
-	char *p;
 
-	p = va_arg(arg_variables, char *);
-
-	if (p == NULL)
-	p = "(nil)";
-	printf("%s", p);
-}
 /**
- * print_all - prints all.
- * @format: last argument.
- * Return: void
+ * print_all - prints anything
+ * @format: list of types of arguments passed to the function
  */
+
 void print_all(const char * const format, ...)
 {
-	int i = 0;
-	int j = 0;
-	char *sep = "";
-	va_list arg_variables;
-	/*Array of struct containing the different variable types accepted*/
-	variable_type var[] = {
-	{"c", printf_c},
-	{"i", printf_i},
-	{"f", printf_f},
-	{"s", printf_s},
-	{NULL, NULL} };
-	/*Init arg list to retrieve the add arguments after parameter format*/
-	va_start(arg_variables, format);
-	/*test if both pointer and string different than NULL*/
-	j = 0;
-	while (format && format[j])
+	va_list valist;
+	unsigned int i = 0, middle = 0;
+	char *arg;
+
+	va_start(valist, format);
+
+	while (format && format[i])
 	{
-		i = 0;
-		while (var[i].character)
+		if (middle)
+			printf(", ");
+		switch (format[i])
 		{
-			if (*(format + j) == *(var[i].character))
+		case 'c':
+			printf("%c", va_arg(valist, int));
+			break;
+		case 'i':
+			printf("%i", va_arg(valist, int));
+			break;
+		case 'f':
+			printf("%f", va_arg(valist, double));
+			break;
+		case 's':
+			arg = va_arg(valist, char *);
+			if (arg)
 			{
-				printf("%s", sep);
-					(var[i].printf)(arg_variables);
-						sep = ", ";
-							break;
+				printf("%s", arg);
+				break;
 			}
-		i++;
+			printf("%p", arg);
+			break;
+		default:
+			middle = 0;
+			i++;
+			continue;
 		}
-		j++;
+		middle = 1;
+		i++;
 	}
 	printf("\n");
-	va_end(arg_variables);
+	va_end(valist);
 }
